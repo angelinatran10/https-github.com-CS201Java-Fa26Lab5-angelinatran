@@ -1,6 +1,8 @@
 
 import java.util.Random;
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class Games {
     /*
@@ -372,5 +374,270 @@ public class Games {
 
         System.out.println("Thanks for playing Rock, Paper, Scissors!");
     }
+/*
+    *
+    *
+    *
+    * BLACKJACK GAME
+    *
+    *
+    *
+    */
 
+    // PRE: accepts scanner from main
+    // POST: creates and shuffles a deck dealing cards to both the
+    //       player and computer, then plays Blackjack
+    public static void playBlackjack(Scanner input) {
+
+        System.out.println("\nWELCOME TO BLACKJACK!\n");
+
+        // card suits and values
+        String[] suits = {
+           "♦",
+           "♥",
+           "♠",
+           "♣"
+        };
+
+        String[] cards = {
+            "A", "2", "3", "4", "5", "6", "7",
+            "8", "9", "10", "J", "Q", "K"
+        };
+
+        String[] deck = createDeck(suits, cards);
+
+        shuffleDeck(deck);
+
+        // ensure both hands start empty
+        ArrayList<String> playerHand = new ArrayList<>();
+        ArrayList<String> computerHand = new ArrayList<>();
+
+        // holds deck position for dealing cards
+        int deckPosition = 0;
+
+        // dealing order
+        playerHand.add(deck[deckPosition++]);
+        computerHand.add(deck[deckPosition++]);
+        playerHand.add(deck[deckPosition++]);
+        computerHand.add(deck[deckPosition++]);
+
+        // display the player's hand and total
+        displayHand("Player", playerHand);
+
+        int playerTotal = calculateHandValue(playerHand);
+
+        System.out.println("      TOTAL: " + playerTotal);
+        System.out.println();
+
+        // display only the first computer card.
+        System.out.println("Computer's first card:");
+        System.out.println(computerHand.get(0));
+
+        System.out.println();
+
+        // -------------------------
+        // PLAYERS TURN
+        // -------------------------
+
+        boolean playerBusted = false;
+
+        System.out.print("Would you like to take another card? (Y or N) ");
+        String answer = input.nextLine();
+
+        while (true){
+            System.out.print("Would you like to take another card? (Y or N) ");
+            answer = input.nextLine();
+            if (!answer.equalsIgnoreCase("Y") && !answer.equalsIgnoreCase("N")) {
+                System.out.println("Invalid input. Please enter Y or N.");
+            } else {
+                break;
+            }
+        }
+
+        while (answer.equalsIgnoreCase("Y")) {
+
+            // when yes, add a card to the player's hand and calculate the new total
+            playerHand.add(deck[deckPosition++]);
+            playerTotal = calculateHandValue(playerHand);
+
+            System.out.println();
+
+            displayHand("Player", playerHand);
+            System.out.println("      TOTAL: " + playerTotal);
+
+            // what happens if player exceeds 21
+            if (playerTotal > 21) {
+
+                playerBusted = true;
+
+                System.out.println();
+                System.out.println("      TOTAL: " + playerTotal);
+                System.out.println("Player went over 21. COMPUTER WINS!!");
+
+                break;
+            }
+
+            System.out.println();
+            System.out.print("Would you like to take another card? (Y or N) ");
+            answer = input.nextLine();
+        }
+
+        // lose game if player busted, otherwise continue to computer's turn
+        if (playerBusted) {
+            return;
+        }
+
+        // -------------------------
+        // DEALER TURN
+        // -------------------------
+
+        int computerTotal = calculateHandValue(computerHand);
+
+        boolean computerBusted = false;
+
+        // computer will keep taking cards until the total is greater than 17
+        // like in actual blackjack, dealer stands on soft 17
+        while (computerTotal <= 17) {
+
+            computerHand.add(deck[deckPosition++]);
+
+            computerTotal = calculateHandValue(computerHand);
+
+            if (computerTotal > 21) {
+                computerBusted = true;
+                break;
+            }
+        }
+
+        System.out.println();
+
+        displayHand("Computer", computerHand);
+        System.out.println("      TOTAL: " + computerTotal);
+
+        System.out.println();
+
+        // -------------------------
+        // DETERMINE WINNER
+        // -------------------------
+
+        if (computerBusted) {
+
+            System.out.println("******PLAYER WINS!!*****");
+
+        }
+        else if (playerTotal > computerTotal) {
+
+            System.out.println("******PLAYER WINS!!*****");
+
+        }
+        else if (computerTotal > playerTotal) {
+
+            System.out.println("******PLAYER LOSES!!*****");
+
+        }
+        else {
+
+            System.out.println("******PUSH!!*****");
+        }
+    }
+
+    public static String[] createDeck(String[] suits, String[] cards) {
+
+        String[] deck = new String[52];
+
+        int position = 0;
+
+        for (int i = 0; i < suits.length; i++) {
+
+            for (int j = 0; j < cards.length; j++) {
+
+                deck[position] = suits[i] + " " + cards[j];
+
+                position++;
+            }
+        }
+
+        return deck;
+    }
+
+    public static void shuffleDeck(String[] deck) {
+
+        ArrayList<String> shuffledDeck = new ArrayList<>();
+
+        for (int i = 0; i < deck.length; i++) {
+            shuffledDeck.add(deck[i]);
+        }
+
+        Collections.shuffle(shuffledDeck);
+
+        for (int i = 0; i < deck.length; i++) {
+            deck[i] = shuffledDeck.get(i);
+        }
+    }
+
+    public static int calculateHandValue(ArrayList<String> hand) {
+
+        int total = 0;
+        int aces = 0;
+
+        for (int i = 0; i < hand.size(); i++) {
+
+            String card = hand.get(i);
+
+
+            String value = card.substring(card.lastIndexOf(" ") + 1);
+
+            if (value.equals("A")) { 
+                //initially counts ace as 11
+                total += 11;
+                aces++;
+
+            }
+            else if (value.equals("J")
+                    || value.equals("Q")
+                    || value.equals("K")) {
+                        //face cards are worth 10
+                total += 10;
+
+            }
+            else {
+
+                total += Integer.parseInt(value);
+            }
+        }
+
+        // change ace to count as 1 if needed to avoid busting
+        while (total > 21 && aces > 0) {
+
+            total -= 10;
+            aces--;
+        }
+
+        return total;
+    }
+
+    /*
+     * DISPLAY HAND
+     *
+     * Prints every card in a player's hand.
+     */
+  public static void displayHand(String name, ArrayList<String> hand) {
+
+    System.out.println(name + " has the following cards:");
+
+    for (int i = 0; i < hand.size(); i++) {
+
+        String card = hand.get(i);
+        //color the diamonds and hearts red, the rest are terminal default color
+        //llm prompt used: how do i change the color of text in java terminal output
+        //ChatGPT on 09/22/2026
+        if (card.startsWith("♦") || card.startsWith("♥")) {
+            System.out.println("\u001B[31m" + card + "\u001B[0m");
+        }
+        else {
+            System.out.println(card);
+        }
+    }
 }
+
+    }

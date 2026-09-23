@@ -30,6 +30,9 @@ public class Main {
 
             else if (choice == 'R')
                 Games.playRockPaperScissors(scanInput);
+            
+            else if (choice == 'B')
+                Games.playBlackjack(scanInput);
 
             //ask to play again? Show menu & get choice
             choice = menu(scanInput);
@@ -45,7 +48,7 @@ public class Main {
 
         //menu loop
         while (choice != 'L' && choice != 'C' &&
-               choice != 'S' && choice != 'R' &&
+               choice != 'S' && choice != 'R' && choice != 'B' &&
                choice != 'Q') {
 
             //   print menu
@@ -53,6 +56,7 @@ public class Main {
             System.out.println("C - Craps");
             System.out.println("S - Scraps");
             System.out.println("R - Rock, Paper, Scissors");
+            System.out.println("B - Blackjack");
             System.out.println("Q - Quit");
         
             //   prompt user, get response & convert to upper case
@@ -65,7 +69,8 @@ public class Main {
 
             //   verify that the choice is L, C or Q 
             if (choice != 'L' && choice != 'C' &&
-                choice != 'S' && choice != 'R' &&
+                choice != 'S' && choice != 'R' && 
+                choice != 'B' &&
                 choice != 'Q') {
 
                 System.out.println("Invalid choice. Please try again.");
