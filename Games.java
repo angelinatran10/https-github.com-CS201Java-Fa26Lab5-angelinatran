@@ -374,7 +374,7 @@ public class Games {
 
         System.out.println("Thanks for playing Rock, Paper, Scissors!");
     }
-/*
+   /*
     *
     *
     *
@@ -639,5 +639,226 @@ public class Games {
         }
     }
 }
+/*
+ *
+ *
+ *
+ * HANGMAN GAME
+ *
+ *
+ *
+ */
 
+// llm prompt used:
+// "How can I make a Hangman game in Java that reads words
+// from a file, randomly chooses one word, uses an array for
+// the guessed word, and gives the player 6 incorrect guesses?"
+// ChatGPT on 09/29/2026
+
+// PRE: accepts scanner from main
+// POST: reads words from wordList.txt, randomly chooses a word,
+//       and allows the user to play Hangman
+public static void playHangman(Scanner input) {
+
+    System.out.println("\nHANGMAN");
+
+    // Create an ArrayList to hold the words from the file
+    ArrayList<String> wordList = new ArrayList<>();
+
+    // Read the words from wordList.txt
+    try {
+
+        Scanner fileInput =
+            new Scanner(new java.io.File("wordList.txt"));
+
+        while (fileInput.hasNextLine()) {
+
+            String word = fileInput.nextLine().trim();
+
+            if (word.length() > 0) {
+                wordList.add(word.toLowerCase());
+            }
+        }
+
+        fileInput.close();
     }
+
+    catch (java.io.FileNotFoundException e) {
+
+        System.out.println("Could not find wordList.txt.");
+        System.out.println(
+            "Make sure wordList.txt is in the project folder."
+        );
+
+        return;
+    }
+
+
+    // Make sure there are words in the file
+    if (wordList.size() == 0) {
+
+        System.out.println("There are no words in wordList.txt.");
+
+        return;
+    }
+
+
+    // Randomly choose a word
+    Random rand = new Random();
+
+    String chosenWord =
+        wordList.get(rand.nextInt(wordList.size()));
+
+
+    // Create the guess word
+    // Use ? for each letter
+    char[] guessWord = new char[chosenWord.length()];
+
+    for (int i = 0; i < guessWord.length; i++) {
+
+        guessWord[i] = '?';
+    }
+
+
+    // Player gets 6 incorrect guesses
+    int guessesLeft = 6;
+
+
+    // Keep track of letters already guessed
+    ArrayList<Character> guessedLetters = new ArrayList<>();
+
+
+    // Display starting word
+    System.out.print("HANGMAN - your word is ");
+
+    for (int i = 0; i < guessWord.length; i++) {
+        System.out.print(guessWord[i]);
+    }
+
+    System.out.println();
+
+
+    // Continue while the player still has guesses
+    // and has not guessed the whole word
+    while (guessesLeft > 0 && !wordGuessed(guessWord)) {
+
+        System.out.print("\nEnter your guess: ");
+
+        String userInput = input.nextLine().toLowerCase();
+
+
+        // Make sure the user enters exactly one letter
+        while (userInput.length() != 1 ||
+               !Character.isLetter(userInput.charAt(0))) {
+
+            System.out.print("Enter your guess: ");
+
+            userInput = input.nextLine().toLowerCase();
+        }
+
+
+        char guessedLetter = userInput.charAt(0);
+
+
+        // Check if the letter was already guessed
+        if (guessedLetters.contains(guessedLetter)) {
+
+            System.out.println(
+                "Sorry! You already guessed that letter."
+            );
+
+            continue;
+        }
+
+
+        // Add letter to list of guessed letters
+        guessedLetters.add(guessedLetter);
+
+        boolean foundLetter = false;
+
+
+        // Check every character in the word
+        for (int i = 0; i < chosenWord.length(); i++) {
+
+            if (chosenWord.charAt(i) == guessedLetter) {
+
+                guessWord[i] = guessedLetter;
+
+                foundLetter = true;
+            }
+        }
+
+
+        // Correct guess
+        if (foundLetter) {
+
+            System.out.println("Nice Guess!");
+
+
+            // Check if the whole word has been guessed
+            if (wordGuessed(guessWord)) {
+
+                System.out.println(
+                    "You WIN!!!! The word was " + chosenWord + "."
+                );
+            }
+
+            else {
+
+                System.out.print("Your current word: ");
+
+                for (int i = 0; i < guessWord.length; i++) {
+                    System.out.print(guessWord[i]);
+                }
+
+                System.out.println();
+            }
+        }
+
+
+        // Incorrect guess
+        else {
+
+            guessesLeft--;
+
+            System.out.print(
+                "Sorry! Guess is not valid. You have "
+                + guessesLeft
+                + " guesses left. Your current word: "
+            );
+
+            for (int i = 0; i < guessWord.length; i++) {
+                System.out.print(guessWord[i]);
+            }
+
+            System.out.println();
+        }
+    }
+
+
+    // Player ran out of guesses
+    if (!wordGuessed(guessWord)) {
+
+        System.out.println(
+            "Sorry! You LOSE!!!! The word was " + chosenWord + "."
+        );
+    }
+
+    System.out.println();
+}
+
+
+// PRE: accepts the guessWord array
+// POST: returns true if the entire word has been guessed
+public static boolean wordGuessed(char[] guessWord) {
+
+    for (int i = 0; i < guessWord.length; i++) {
+
+        if (guessWord[i] == '?') {
+            return false;
+        }
+    }
+
+    return true;
+}
+}
